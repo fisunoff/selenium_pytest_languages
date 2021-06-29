@@ -1,30 +1,49 @@
 from .base_page import BasePage
 from .locators import ProductPageLocators
-import math
-from selenium.common.exceptions import NoAlertPresentException
 
 
 class ProductPage(BasePage):
-    def buy_btn(self):
-        link = self.browser.find_element(*ProductPageLocators.BUY_BTN)
-        link.click()
+    def add_product_to_basket(self):
+        self.add_product()
         self.solve_quiz_and_get_code()
+        self.should_be_correct_product()
+        self.should_be_correct_cost()
 
-    def solve_quiz_and_get_code(self):
-        alert = self.browser.switch_to.alert
-        x = alert.text.split(" ")[2]
-        answer = str(math.log(abs((12 * math.sin(float(x))))))
-        alert.send_keys(answer)
-        alert.accept()
-        try:
-            alert = self.browser.switch_to.alert
-            alert_text = alert.text
-            print(f"Your code: {alert_text}")
-            alert.accept()
-        except NoAlertPresentException:
-            print("No second alert presented")
+    def add_product(self):
+        button = self.browser.find_element(*ProductPageLocators.BASKET_BUTTON)
+        button.click()
 
-    def check_name(self):
-        book_name = self.browser.find_element(*ProductPageLocators.BOOK_NAME).text
-        msg_book_name = self.browser.find_element(*ProductPageLocators.MSG_BOOK_NAME).text
-        assert book_name == msg_book_name, "Names don't match"
+    def should_be_correct_product(self):
+        product = self.browser.find_element(*ProductPageLocators.PRODUCT_NAME)
+
+        product_in_basket = self.browser.find_element(*ProductPageLocators.
+                                                      PRODUCT_MESSAGE)
+
+        assert product.text == product_in_basket.text, (
+            f"Wrong item in the cart. Should be '{product.text}',"
+            f"but given '{product_in_basket.text}'.")
+
+    def should_be_correct_cost(self):
+        product_cost = ((self.browser.find_element(
+            *ProductPageLocators.PRODUCT_COST))
+            .text).translate(str.maketrans(
+             "", "", "£  "))
+
+        cost_in_basket = ((self.browser.find_element(
+            *ProductPageLocators.COST_MESSAGE))
+            .text).translate(str.maketrans(
+             "", "", "£  "))
+
+        assert product_cost == cost_in_basket, (
+            f"Wrong cost. Should be {product_cost}, "
+            f"but given {cost_in_basket}.")
+
+    def should_not_be_success_message(self):
+        assert self.is_not_element_present(
+            *ProductPageLocators.SUCCESS_MESSAGE), (
+            "Success message is presented")
+
+    def message_should_disappear(self):
+        assert self.is_disappeared(
+            *ProductPageLocators.SUCCESS_MESSAGE), (
+            "The message did not disappear")

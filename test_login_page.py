@@ -1,22 +1,8 @@
-from pages.login_page import LoginPage
-
-link = "http://selenium1py.pythonanywhere.com/ru/accounts/login/"
-
-
-def test_login_url(browser):
-    page = LoginPage(browser, link)
-    page.open()
-    page.should_be_login_url()
+from .pages.locators import LinksLocators
+from .pages.login_page import LoginPage
 
 
-def test_login_login(browser):
-    page = LoginPage(browser, link)
-    page.open()
-    page.should_be_login_form()
-
-
-def test_login_reg(browser):
-    page = LoginPage(browser, link)
-    page.open()
-    page.should_be_register_form()
-
+def test_should_be_login_page(browser):
+    login_page = LoginPage(browser, LinksLocators.LOGIN_LINK)
+    login_page.open()
+    login_page.should_be_login_page()
