@@ -23,3 +23,8 @@ class ProductPage(BasePage):
             alert.accept()
         except NoAlertPresentException:
             print("No second alert presented")
+
+    def check_name(self):
+        book_name = self.browser.find_element(*ProductPageLocators.BOOK_NAME).text
+        msg_book_name = self.browser.find_element(*ProductPageLocators.MSG_BOOK_NAME).text
+        assert book_name == msg_book_name, "Names don't match"
